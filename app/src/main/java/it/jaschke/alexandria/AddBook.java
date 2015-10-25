@@ -28,6 +28,8 @@ import it.jaschke.alexandria.services.DownloadImage;
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
+    public static final int SCAN_ACTIVITY_REQUEST_CODE = 1111;
+    public static final String BARCODE_EXTRA = "BARCODE";
     private EditText ean;
     private final int LOADER_ID = 1;
     private View rootView;
@@ -102,7 +104,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 CharSequence text = "This button should let you scan a book for its barcode!";
                 int duration = Toast.LENGTH_SHORT;
                 Intent launchBarcodeReaderActivity = new Intent(context, BarcodeReaderLauncherActivity.class);
-                startActivity(launchBarcodeReaderActivity);
+                startActivityForResult(launchBarcodeReaderActivity, SCAN_ACTIVITY_REQUEST_CODE);
+                //startActivity(launchBarcodeReaderActivity);
 
                 /*Toast toast = Toast.makeText(context, text, duration);
                 toast.show();*/
@@ -171,10 +174,14 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
         ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
 
-        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+        try {
+            String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
+            String[] authorsArr = authors.split(",");
+            ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+            ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
             new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
@@ -186,6 +193,15 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
         rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==SCAN_ACTIVITY_REQUEST_CODE && data!=null){
+            ean.setText(data.getStringExtra(BARCODE_EXTRA));
+        }
     }
 
     @Override

@@ -1,16 +1,19 @@
 package it.jaschke.alexandria.barcode_reader;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
+import it.jaschke.alexandria.AddBook;
 import it.jaschke.alexandria.R;
 
 /**
@@ -26,6 +29,8 @@ public class BarcodeReaderLauncherActivity extends AppCompatActivity implements 
 
     private static final int RC_BARCODE_CAPTURE = 9001;
     private static final String TAG = "BarcodeMain";
+    private Button mAcceptBarcode;
+    private String barcode_value;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +39,21 @@ public class BarcodeReaderLauncherActivity extends AppCompatActivity implements 
 
         statusMessage = (TextView)findViewById(R.id.status_message);
         barcodeValue = (TextView)findViewById(R.id.barcode_value);
-
+        mAcceptBarcode = (Button) findViewById(R.id.accept_scanned_barcode);
         autoFocus = (CompoundButton) findViewById(R.id.auto_focus);
         useFlash = (CompoundButton) findViewById(R.id.use_flash);
 
         findViewById(R.id.read_barcode).setOnClickListener(this);
+        mAcceptBarcode.setVisibility(View.GONE);
+        mAcceptBarcode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(Activity.RESULT_OK,new Intent().putExtra(AddBook.BARCODE_EXTRA,barcode_value));
+                finish();
+                mAcceptBarcode.setVisibility(View.GONE);
+            }
+        });
+
     }
 
     /**
@@ -88,7 +103,10 @@ public class BarcodeReaderLauncherActivity extends AppCompatActivity implements 
                 if (data != null) {
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     statusMessage.setText(R.string.barcode_success);
+                    barcode_value = barcode.displayValue;
+                    mAcceptBarcode.setVisibility(View.VISIBLE);
                     barcodeValue.setText(barcode.displayValue);
+                    //TODO: 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
                     statusMessage.setText(R.string.barcode_failure);

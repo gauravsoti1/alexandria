@@ -25,7 +25,18 @@
         android:layout_below="@+id/status_message"
         android:layout_alignParentStart="true"
         android:layout_marginTop="110dp"
-        android:layout_alignEnd="@+id/status_message" />
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/barcode_value"
+        android:id="@+id/accept_scanned_barcode"
+        android:layout_marginLeft="16dp"
+        android:layout_alignTop="@+id/barcode_value"
+        android:text="OK"
+        android:visibility="gone"
+        />
 
     <Button
         android:layout_width="wrap_content"
@@ -51,7 +62,9 @@
         android:text="@string/use_flash"
         android:id="@+id/use_flash"
         android:layout_alignTop="@+id/auto_focus"
-        android:layout_alignEnd="@+id/barcode_value"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
         android:checked="false" />
 
 </RelativeLayout>
